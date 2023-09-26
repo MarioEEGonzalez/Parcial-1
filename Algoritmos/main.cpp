@@ -4,6 +4,7 @@
 int opcion;
 #define total 255
 
+//CREA UN PUNTERO QUE APUNTA A UN ARREGLO DINAMICO
 int* arreglo ( int columnas){
     int * arreglo =  new int [columnas];
 
@@ -13,36 +14,14 @@ int* arreglo ( int columnas){
     return arreglo;
 }
 
-// RELLENA UNA MATRIZ CON NUMEROS DEL 0 AL 63
-int** RellenarMatriz(int** matriz){
-    int contador = 0;
-    for (int i = 0; i<8 ; i++){
-        for ( int u = 0; u<8; u++){
-            matriz[i][u]= contador;
-            contador++;
-        }
-    }
-    return matriz;
-}
 
 
 
-//  ENCIENDE EL LOS LEDS QUE CORRESPONDE AL NUMERO EN DECIMAL
-void encender( unsigned long  long int  LED1){
-    digitalWrite(8, LOW);
-    shiftOut(7,9,MSBFIRST,LED1>>56);
-    shiftOut(7,9,MSBFIRST,LED1>>48);
-    shiftOut(7,9,MSBFIRST,LED1>>40);
-    shiftOut(7,9,MSBFIRST,LED1>>32);
-    shiftOut(7,9,MSBFIRST,LED1>>24);
-    shiftOut(7,9,MSBFIRST,LED1>>16);
-    shiftOut(7,9,MSBFIRST,LED1>>8);
-    shiftOut(7,9,MSBFIRST,LED1);
-    digitalWrite(8, HIGH);
-}
+
+
 
 // FUNCION VERIFICACION PERMITE ENCENDER Y APAGAR LOS LEDS
-void Verificacion(int frecuencia){
+void apagayprende(int frecuencia){
     unsigned long long int num = 0;
     digitalWrite(8, LOW);
     for (int i = 0; i<8;i++){
@@ -50,8 +29,8 @@ void Verificacion(int frecuencia){
     }
     digitalWrite(8, HIGH);
     delay(frecuencia);
-
-    encender(num);
+    digitalWrite(8, LOW);
+    apagar();
     delay(frecuencia);
 }
 
@@ -67,7 +46,7 @@ int leerDato( ){
 }
 
 //PERMITE VERIFICAR EL FUNCIONAMIENTO DE LOS LEDS CON UNA FRECUENCIA Y CANTIDAD LEIDAS
-void verificar_funcionamiento(){
+void Verificacion(){
     int z=0;
     int freq, cant;
     Serial.println("Ingrese la frecuencia de encendido");
@@ -75,7 +54,7 @@ void verificar_funcionamiento(){
     Serial.println("Ingrese la cantidada de veces de repeticion");
     cant = leerDato();
     while(z<cant){
-        Verificacion(freq);
+        apagayprende(freq);
         z=z+1;
     }
 
@@ -84,7 +63,7 @@ void verificar_funcionamiento(){
 
 //IMPRIME EL PATRON #1
 void imprimirPatron1( ) {
-
+    digitalWrite(8, LOW);
     int suma = 0;
     int *arreglo1;
     arreglo1= arreglo(8);
@@ -96,7 +75,7 @@ void imprimirPatron1( ) {
         suma = 1;
         suma= suma + pow(2,arreglo1[i])+ pow(2,arreglo1[7-i]);
         shiftOut(7,9,MSBFIRST,suma);
-        Serial.print(suma);
+
 
 
 
@@ -107,7 +86,7 @@ void imprimirPatron1( ) {
 
 
 }
-
+// ESTA FUNCION PERTENECE A LA PATRON 3 PERMITE IMPRIMIR UNA LINEA DESPLAZADA
 float ingresa_una_linea(int auxi){
 
     float suma = 0;
@@ -129,8 +108,17 @@ float ingresa_una_linea(int auxi){
     }
     return suma;
 }
-void imprimirPatron3 (){
+void apagar(){
+    digitalWrite(8, LOW);
+    for (int i = 0; i<8;i++){
+        shiftOut(7,9,MSBFIRST,0);
+    }
+    digitalWrite(8, HIGH);
+}
 
+// IMPRIME EL PATRON 3
+void imprimirPatron3 (){
+    digitalWrite(8, LOW);
     float suma;
 
 
@@ -151,9 +139,9 @@ void imprimirPatron3 (){
     digitalWrite(8, HIGH);
 }
 
-
+// IMPRIME EL PATRON 2
 void imprimirPatron2( ) {
-
+    digitalWrite(8, LOW);
     int suma = 1;
 
     int *arreglo1;
@@ -172,7 +160,7 @@ void imprimirPatron2( ) {
         shiftOut(7,9,MSBFIRST,suma);
         suma++;
         auxiliar[i]= suma;
-        Serial.println(suma);
+
 
     }
     for (int j = 3 ; j>= 0; j--){
@@ -183,21 +171,16 @@ void imprimirPatron2( ) {
 
 }
 
+// IMPRIME EL PATRON 4
 void imprimirPatron4( ) {
 
-
-
+    digitalWrite(8, LOW);
     int *arreglo1;
     arreglo1= arreglo(8);
 
 
     int aux[4];
     int *auxiliar= aux;
-
-
-
-
-
 
     for (int i = 0; i < 4; i++) {
         float suma =0 ;
@@ -209,7 +192,7 @@ void imprimirPatron4( ) {
 
         shiftOut(7,9,MSBFIRST,suma);
         auxiliar[i]= suma;
-        Serial.println(suma);
+
 
     }
 
@@ -226,6 +209,90 @@ void imprimirPatron4( ) {
     digitalWrite(8, HIGH);
 
 }
+// ESTA FUNCION PERMITE IMPRIMIR EN LA PANTALLA DE LEDS 1 DE LOS 4 PATRONES
+void Imagen(){
+    Serial.println("INGRESE EL NUMERO DEL PATRON QUE QUIERA OBSERVAR\n1.PATRON 1\n2.PATRON 2\n3.PATRON 3\n4.PATRON 4");
+    int opcion;
+    opcion= leerDato();
+    if (opcion == 1){
+        imprimirPatron1();
+    }
+    else if(opcion==2){
+        imprimirPatron2();
+    }
+    else if(opcion == 3){
+        imprimirPatron3();
+    }
+    else if(opcion== 4){
+        imprimirPatron4();
+    }
+}
+//FUNCION PUBLICK
+void publik(){
+    Serial.println("SELECCIONE\n1.VERRIFICAR FUNCIONAMIENTO\n2.MOSTRAR IMAGEN\n3.FORMA ALTERNADA");
+    int opcion;
+    opcion = leerDato();
+    if (opcion == 1){
+        Verificacion();
+    }
+    else if(opcion==2){
+        int z= 0;
+        Serial.print("INGRESE LA FRECUENCIA");
+        int freq = leerDato();
+        Serial.println("INGRESE EL NUMERO DEL PATRON QUE QUIERA OBSERVAR\n1.PATRON 1\n2.PATRON 2\n3.PATRON 3\n4.PATRON4");
+        int opc;
+        opc= leerDato();
+        if (opc == 1){
+            while(z<4){
+                imprimirPatron1();
+                delay(freq);
+                apagar();
+                delay(freq);
+                z++;
+            }
+        }
+        else if(opc==2){
+            while(z<4){
+                imprimirPatron2();
+                delay(freq);
+                apagar();
+                delay(freq);
+                z++;
+            }
+        }
+        else if(opc == 3){
+            while(z<4){
+                imprimirPatron3();
+                delay(freq);
+                apagar();
+                delay(freq);
+                z++;
+            }
+        }
+        else if(opc== 4){
+            while(z<4){
+                imprimirPatron4();
+                delay(freq);
+                apagar();
+                delay(freq);
+                z++;
+            }
+        }
+    }
+
+    else if(opcion == 3){
+        Serial.print("INGRESE LA FRECUENCIA");
+        int freq = leerDato();
+        imprimirPatron1();
+        delay(freq);
+        imprimirPatron2();
+        delay(freq);
+        imprimirPatron3();
+        delay(freq);
+        imprimirPatron4();
+        delay(freq);
+    }
+}
 
 void setup()
 {
@@ -239,5 +306,5 @@ void setup()
 void loop()
 {
 
-    imprimirPatron3( );
+    publik();
 }
